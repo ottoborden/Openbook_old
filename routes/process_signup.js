@@ -8,6 +8,7 @@ var crypto = require('crypto');
 
 var neo4j = require('node-neo4j');
 var db = new neo4j(process.env.NEO4J_URL || 'http://localhost:7474');
+//var db = new neo4j("http://thesisdb:Pvewfh3457PS02N6ocac@thesisdb.sb01.stations.graphenedb.com:24789");
 
 var express = require('express');
 var app = express();
