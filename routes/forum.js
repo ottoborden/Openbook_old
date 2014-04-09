@@ -2,14 +2,24 @@
 /*
 
 	Create hierarchical data structures (JSON) that can be parsed naturally by D3
+	
+		With regards to collision detection, specifically for edges (a computationally difficult problem), it may be wise to compute the links between nodes on the server side
+			From SO
+				This is not a hard problem. Just add forces to the edges in addition to the nodes. If possible, simply increasing the size of the graph would help significantly. –  tba Aug 11 '13 at 8:14
+				http://stackoverflow.com/questions/17920704/avoid-collision-between-nodes-and-edges-in-d3-force-layout
+				
+			Consider:
+				Do branching on the server side, aka the server will decide how many nodes a user sees.
+					Only load nodes of depth 1 (original posts) at first? Perhaps depth < 3...
+				
+				?Set up a sort of "infinite scroll" type system?
 
 */
 
-var util = require('util');
-var crypto = require('crypto');
-var jade = require('jade');
-
+var Uid = require('sequential-guid');
+var async = require("async");
 var neo4j = require('node-neo4j');
+var moment = require('moment');
 var db = new neo4j(process.env.NEO4J_URL || 'http://localhost:7474');
 //var db = new neo4j("http://thesisdb:Pvewfh3457PS02N6ocac@thesisdb.sb01.stations.graphenedb.com:24789");
 
@@ -18,56 +28,266 @@ exports.forum = function(req, res) {
 }
 
 exports.getData = function(req, res) {
-	// Get data from DB and send to client
-	
-	// Get a list of all nodes with the label User, returns JSON object
-	var users;
-	db.readNodesWithLabel('User', function(err, nodes) { 
-		if(!err) {
-		
-			/*
-				1/13/2014
-					Remember, let the data structure do as much of the processing as possible
+	/*	
+		1/16/2014
+			Get all posts then use functions like db.readOutgoingRelationshipsOfNode to map out which posts are replies and to what
+				For Posts:
+					Having outgoing nodes means it's a reply; incoming are either who posted it or replies to it
+					It should suffice to check for incoming nodes of every post to build a JSON object representing a subgraph
 					
-					D3's layout code expects a standard hierarchical node structure
-						http://stackoverflow.com/questions/15535714/d3-js-collapsible-force-layout-links-are-not-being-generated/15538261#15538261
-						http://stackoverflow.com/questions/19259279/d3-hierarchy-links-dont-use-accessor-function
-						
-					Understand force layouts so I can size can become something meaningful (popularity of a given post perhaps?)
-			*/
-		
-			// Return JSON object not an array containing JSON objects
-			/*var rtn = {};
-			rtn["name"] = "All Users";
-			rtn["children"] = new Array();
-			for(var i = 0; i < nodes.length; i++) {
-				var t = {};
-				t["name"] = "User";
-				t["children"] = new Array();
-				var t1 = {};
-				t1.username = nodes[i].username;
-				t1.email = nodes[i].email;
-				t1.size = Math.random() * (9999 - 999) + 999;
-				t.children.push(t1);
-				rtn["children"].push(t);
-			}
-			*/
+		1/23/2014
+			Okay so there is no need for me to set up redundant (and probably inefficient) queries to map out paths. I can start on a given post and
+			traverse all nodes connected to it via Cypher alone.
+				MATCH (n:Post)<-[path*]-(child)
+				WHERE n.title = 'Post 2'
+				AND NONE(r in path WHERE type(r) in ["POSTED"])
+				RETURN *
+				
+				!!!! The only way this works is if I generate a unique and sequential ID as a property on each Post node and then order the results by this ID
+				
+		1/28/2014
+			By adding a FIRSTREPLY relationship to the first node at a new depth and next (->) relationship from the first child to all nodes to its right I can traverse the graph in BFO.	
+				MATCH (n:Post)-[:FIRSTREPLY]->(m:Post) 
+				OPTIONAL MATCH (m)-[:NEXT*]->(c:Post) 
+				RETURN DISTINCT n,m,collect(c)
+				
+		1/30/2014
+			Neo4j 2.0 allows the use of literal maps to describe the format of output from Cypher queries. So close....!
+				MATCH (n:Post)-[:FIRSTREPLY]->(m:Post)
+				OPTIONAL MATCH (m)-[:NEXT*]->(c:Post)
+				RETURN { root: {id: id(m), title: m.title, message: m.message}, collectionKey: [ {id: id(c), title: c.title, message: c.message} ] }
+				
+		1/31/2014
+			Return arrays with first object as parent node and second object as reply node
+				MATCH (n:Post)<-[:REPLYTO]-(m:Post)
+				RETURN { root: {id: id(n), title: n.title, message: n.message}, collectionKey: {id: id(m), title: m.title, message: m.message} }
+				
+				!!!!! This query and sort method may not be reliable long term because Neo4j does not guarantee that it will traverse breadth first
+				
+				Try Insertion Sort
+				
+		2/4/2014
+			MATCH (n:OpeningPost)
+			WITH n
+			OPTIONAL MATCH (n)<-[:REPLYTO]-(m)
+			OPTIONAL MATCH (n)<-[:REPLYTO*]-(m)<-[:REPLYTO]-(c:Post)
+			RETURN { root: {id: id(n), title: n.title, message: n.message}, parent: {id: id(m), title: m.title, message: m.message}, children: COLLECT( {id: id(c), title: c.title, message: c.message} ) }
 			
-			var rtn = {};
-			rtn["name"] = "Users";
-			rtn["children"] = new Array();
-			for(var i = 0; i < nodes.length; i++) {
-				var t = {};
-				t.username = nodes[i].username;
-				t.email = nodes[i].email;
-				t.size = Math.random() * (9999 - 999) + 999;
-				rtn["children"].push(t);
-			}
-			res.end(JSON.stringify(rtn));
-		}
+		2/5/2014
+			The above doesn't work because I need to be able to search down to an arbitrary depth
+			
+		2/13/2014
+			START a=node(4)
+			MATCH p = a<-[:REPLYTO*]-x
+			RETURN p
+			
+			Include notes on how to get around explicit async coding (for example putting the .exec() call below inside the push method)
+			
+		2/20/2014
+			Success!
+				Query DB twice and minimize return payloads OR return a larger payload but query only once?
+					RETURN EXTRACT (x IN nodes(p) | {id: id(x), message: x.message, title: x.title}) AS messages
+						vs
+					RETURN p
+			
+			TODO
+				Send GUID in payload as well - this will speed up selecting nodes in D3js
+				
+	*/
+	// This will return an object with an array called nodes. Use this to build a map of the structure to return, then fill it it with post data. Then send a query getting info each node involved
+	db.cypherQuery("START a=node(4) MATCH p = a<-[:REPLYTO*]-x RETURN EXTRACT (x IN nodes(p) | {id: id(x), message: x.message, title: x.title, postId: x.postId}) AS messages", function(err, posts) {
+		if(err)
+			throw err;
 		else {
-			console.log('Error fetching nodes labeled \'User\': ' + err);
-			res.end("Couldn't fetch nodes");
+			var rtn = {}; // Object to return
+			var t = []; // Hold extracted node ids
+			for(var i = 0; i < posts.data.length; i++) {
+				for(var j = 0; j < posts.data[i].length; j++) {
+					t.push(posts.data[i][j]);
+				}
+			}
+			//console.log(t);
+			
+			// Build rtn object
+			rtn = {id: t[0].id, title: t[0].title, message: t[0].message, postId: t[0].postId, children: []};
+			var curr = rtn;
+			for(var i = 1; i < t.length; i++) {
+				if(t[i].id == t[0].id) {
+					curr = rtn;
+					continue;
+				}
+				if(curr.children.length > 0) {
+					var found = false;
+					for(var j = 0; j < curr.children.length; j++) {
+						if(curr.children[j].id == t[i].id) {
+							found = true;
+							curr = curr.children[j];
+						}
+					}
+					if(!found) {
+						curr.children.push({id: t[i].id, title: t[i].title, message: t[i].message, postId: t[i].postId, children: []});
+					}
+				}
+				else {
+					curr.children.push({id: t[i].id, title: t[i].title, message: t[i].message, postId: t[i].postId, children: []});
+				}
+			}
+			/*var curr = rtn;
+			for(var i = 1; i < t.length; i++) {
+				if(t[i] == t[0]) {
+					curr = rtn;
+					continue;
+				}
+				if(curr.children.length > 0) {
+					var found = false;
+					for(var j = 0; j < curr.children.length; j++) {
+						if(curr.children[j].id == t[i]) {
+							found = true;
+							curr = curr.children[j];
+						}
+					}
+					if(!found) {
+						curr.children.push({id: t[i], children: []});
+					}
+				}
+				else {
+					curr.children.push({id: t[i], children: []});
+				}
+			}*/
+			//console.log(JSON.stringify(rtn));
+			res.send(JSON.stringify(rtn));
 		}
 	});
+	
+	/*var rtn = {};
+	var users = new Array();
+	db.cypherQuery("MATCH (n:Post) RETURN n", function(err, posts) {
+		if(err)
+			throw err;
+		else {
+			//console.log(posts);
+			if(posts.data.length > 1) {
+				/*
+					Everything in Node is non-blocking so I must find a way to execute code serially
+						Seperate the code that interacts with DB and code that constructs return object
+				
+				// Array to hold async tasks
+				var asyncTasks = [];
+				var results = [];
+				// Loop through some items
+				posts.data.forEach(function(item){
+				  // We don't actually execute the async thing here
+				  // We push a function containing it on to an array of "tasks"
+				  asyncTasks.push(function(dbCallback) {
+				  	db.readIncomingRelationshipsOfNode(item._id, function(err, rels) {
+						if(err)
+							throw err;
+						else {
+						  results.push(rels);
+						  dbCallback();
+						}
+					});
+				  });
+				});
+				
+				// Execute all async tasks in the asyncTasks array
+				async.parallel(asyncTasks, function(){
+				  // All tasks are done now
+				  results.forEach(function(item, index) {
+				  	for(var i = 0; i < item.length; i++) {
+					  if(item[i]._type == "POSTED") {
+					  	item.splice(i, 1);
+					  	//console.log(item[i]);
+					  }
+					}
+				  });
+				  results.forEach(function(item, index) {
+					  if(item.length == 0)
+					  	results.splice(index, 1);
+				  });
+				  
+				  // Begin building return object
+				  console.log(results);
+				});
+			}
+			else {
+				//rtn.name = posts.data[0].userNodeId
+				
+			}
+		}
+	})
+
+	/*
+		How to limit the size of subgraph displayed to user when graph is huge?
+			start n=node(user.id)
+			...
+			LIMIT 200
+	*/
+}
+
+exports.handleReply = function(req, res) {
+	console.log(req.body);
+	console.log(req._passport.session.user);
+	// First insert the new Post node and link it to the proper user
+	// Then create the REPLYTO relationship on the proper node
+	var uid = new Uid;
+	var t = {
+		title: req.body.replyTitle,
+		message: req.body.replyMessage,
+		timePosted: moment().unix(),
+		postId: uid.next()
+	};
+	db.insertNode(t, "Post", function(err, node) {
+		if(err) {
+			console.log(err);
+			res.end("Error storing reply post, application must halt.");
+		}
+		else {
+			// Only create the relationship if the post is stored successfully
+			/*
+				Use Passport's serializeUser function to store the node id of the user; node.id will contain the id of a successful post
+			*/
+			db.insertRelationship(req._passport.session.user.userNodeId, node._id, 'POSTED', {relationshipId: uid.next()}, function(err, relationship){
+				if(err) {
+					console.log(req._passport.session.user.userNodeId);
+					throw err;
+				}
+				else {
+					console.log("Post successfully related to user " + req._passport.session.user.userNodeId);
+					console.log(relationship);
+					// Get ID of node with postId == req.body.guid
+					db.cypherQuery("MATCH (n:Post),(m:Post) " + 
+									"WHERE n.postId = \'" + req.body.guid + "\' AND " + 
+									"id(m) = " + node._id + 
+									" CREATE (m)-[r:REPLYTO { timePosted: " + moment().unix() + ", relationshipId: \'" + uid.next() + "\'}]->(n)", function(err, posts) {
+						if(err)
+							throw err;
+						else {
+							console.log("Successfully created REPLYTO relationship for new reply.");
+						}
+					});
+				}
+			});
+			// Need to return serialized JSON or jQuery thinks an error has occurred
+			var r = {
+				success: true
+			};
+			res.send(JSON.stringify(r));
+		}
+	});
+	
+	/*db.insertRelationship(req._passport.session.user, node._id, 'POSTED', {relationshipId: uid.next()}, function(err, relationship){
+		if(err) {
+			throw err;
+		}
+		else {
+			nodeId = node._id;
+			console.log("Post successfully related to user " + req._passport.session.user);
+			console.log(relationship);
+		}
+	});*/
+}
+
+var dbCallback = function() {
+	console.log("dbCallback");
 }

@@ -18,6 +18,8 @@ var signup = require('./routes/signup'); // Display registration form
 var process_signup = require('./routes/process_signup'); // Process registration form
 var login = require('./routes/login');
 var forum = require('./routes/forum');
+var post = require('./routes/post');
+var filldb = require('./routes/filldb');
 
 
 var app = express();
@@ -71,6 +73,9 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+// Fill DB with test data
+app.get('/filldb', filldb.fillDb);
+
 // Define routes here to provide functionality of site
 app.all('*', function(req, res, next) {
 	if(req.isAuthenticated())
@@ -91,12 +96,16 @@ app.get('/login', login.login); // Show login form
 app.post('/login', 
 	passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }),
 	function(req, res) { // Authentication Successful
-			res.redirect('/'); // Send to their user profile orthe graph visualization
+			res.redirect('/'); // Send to their user profile or the graph visualization
 	}
 );
 
 app.get('/forum', forum.forum);
 app.get('/forum/load', forum.getData);
+app.post('/forum/reply', forum.handleReply);
+
+app.get('/post', post.post);
+app.post('/post', post.process);
 
 app.get('/about', function(req, res, next) {
 	res.render('about');

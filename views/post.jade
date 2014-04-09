@@ -1,0 +1,19 @@
+extends layout
+
+block content
+	h1 Use the Form Below To Post A Message Or Reply
+	
+	div
+		form(action='/post', method='post')
+			div
+				label(for='topic') Topic: 
+				select(id='topic', name='topic')
+					option(value="Random") Random
+			div
+				label(for='title') Title: 
+				input(id='title', name='title', type='text', value='', placeholder='post title')
+			div
+				label(for='message') Message: 
+				textarea(id='message', name='message', cols='50', rows='15', value='', placeholder='post message')
+			div
+				input(id='submit', type='submit', value='Submit Post')

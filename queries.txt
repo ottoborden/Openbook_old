@@ -1,0 +1,18 @@
+Useful Cypher Queries
+
+Get All Nodes & Relationships
+	START n=node(*)
+	OPTIONAL MATCH n-[r]-()
+	RETURN distinct n, r
+	LIMIT 200
+	
+Create a Relationship Between a User & a Post
+	MATCH (a:User),(b:Post)
+	WHERE a.username = 'oborden2' AND b.title = 'Some title'
+	CREATE (a)-[r:POSTED]->(b)
+	RETURN r
+	
+Create a Reply
+	MATCH (a:Post),(b:Post) 
+	WHERE a.title = "Some title" AND b.title = "Post 4" 
+	CREATE (a)-[r:REPLYTO { timePosted: 1389700476 }]->(b)
