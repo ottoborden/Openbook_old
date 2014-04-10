@@ -26,7 +26,7 @@ function drawForum(data) {
 	var force = d3.layout.force()
 		.on("tick", tick)
 		.gravity(0.05)
-		.charge(-100)
+		.charge(-300)
 		//.gravity(0)
 		//.charge(0)
 		/*.charge(function(d) {
@@ -144,7 +144,7 @@ function tick() {
         if (d.parent) {
           py = d.parent.y;
         }
-        d.py = d.y = py + d.depth * ly + r;
+        d.py = d.y = py + d.depth * ly + r; // The deeper a nodes depth the more distance between its parent and itself
       }
 
       // #1a: constraint all nodes to the visible screen: links
@@ -166,19 +166,18 @@ function tick() {
     }
   });
 
-
+  // Reset the start and end points of the links that connect nodes
   link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; }) // HACK - return d.target.x; !! Fixed related to size attribute
-      .attr("y2", function(d) { return d.target.y; }); // HACK - return d.target.y; !! Fixed related to size attribute
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
 
-  node.attr("cx", function(d) { return d.x; }) // HACK - return d.x; !! Fixed related to size attribute
-      .attr("cy", function(d) { return d.y; }); // HACK - return d.y; !! Fixed related to size attribute
+  node.attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; });
 }
 
 // Color leaf nodes orange, and packages white or blue.
 function color(d) {
-	console.log(d.children.length);
 	if(d.children.length > 1)
 		return "red";
 	else

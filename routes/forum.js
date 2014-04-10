@@ -122,6 +122,7 @@ exports.getData = function(req, res) {
 						if(curr.children[j].id == t[i].id) {
 							found = true;
 							curr = curr.children[j];
+							break;
 						}
 					}
 					if(!found) {
