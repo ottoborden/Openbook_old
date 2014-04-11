@@ -15,7 +15,7 @@ $.ajax({
 
 function drawForum(data) {
 	console.log(data);
-	
+
 	var width = 1600,
 	height = 600,
 	node,
@@ -68,9 +68,9 @@ function drawForum(data) {
 	});
 	*/
 	
-	function update(nodes) {
-		var nodes = flatten(root);
-		var links = computeLinks1(nodes); // HACK - d3.layout.hierarchy().links(nodes);
+	function update() {
+		var nodes = flatten(root); // Perhaps flatten could be obsoleted by returning this array from the server? It takes compute load off the client
+		var links = computeLinks(nodes); // HACK - d3.layout.hierarchy().links(nodes);
 		
 		// make sure we set .px/.py as well as node.fixed will use those .px/.py to 'stick' the node to:
 		if (!root.px) {
@@ -88,7 +88,7 @@ function drawForum(data) {
 		// Update the links…
 		link = vis.selectAll("line.link")
 		  .data(links, function(d) { return d.target.id; });
-		
+
 		// Enter any new links.
 		link.enter().insert("line", ".node")
 		  .attr("class", "link")
@@ -102,8 +102,8 @@ function drawForum(data) {
 		
 		// Update the nodes…
 		node = vis.selectAll("circle.node")
-		  .data(nodes, function(d) { return d.id; })
-		  .style("fill", color);
+		  .data(nodes, function(d) { return d.id; });
+		  //.style("fill", color);
 
 		node.transition()
 		  .attr("cy", function(d) { return d.y; })
@@ -115,7 +115,7 @@ function drawForum(data) {
 		  .attr("class", "node")
 		  .attr("cx", function(d) { return d.x; })
 		  .attr("cy", function(d) { return d.y; })
-		  .attr("r", function(d) { return circle_radius(d); }) // HACK - return circle_radius(d); !! Fixed - Data structure caused problem with circle_radius method
+		  .attr("r", function(d) { return circle_radius(d); })
 		  .style("fill", color)
 		  .on("click", click)
 		  .call(force.drag); // Comment out to disable drag behavior
@@ -243,7 +243,7 @@ function click(d) {
 							.style('height', "170px")
 	                        .style("overflow-x", "auto")
 	                        .style("overflow-y", "auto")
-	                        .text(d.message)
+	                        //.text(d.message)
 							.html('<b>' + d.title + '</b><br/><br/>' + d.message);
 				
     var closeContentBox = vis.append('svg:foreignObject')
@@ -258,12 +258,7 @@ function click(d) {
 								.style('height', '16px')
 								.style('text-align', 'center')
 								.html('X<br/>')
-								.on('click', function() {
-									d3.select("#messageBox").remove();
-									d3.select("#contentForObj").remove();
-									d3.select("#replyForObj").remove();
-									d3.select("#closeContentBox").remove();
-								});
+								.on('click', closeContentBoxes);
 	
 	var replyForObj = vis.append('svg:foreignObject')
     					.attr('id', 'replyForObj')
@@ -312,20 +307,20 @@ function processReply() {
 		},
 		success: function(data) {
 			console.log(data);
-			closeContentBox();
+			closeContentBoxes();
 			// Return the JSON serialization of the newly inserted node
 			// Then put the node in the correct spot in the array and call update
 			
 		},
 		error: function(err) {
 			console.log(err);
-			closeContentBox();
+			closeContentBoxes();
 		}
 	});
 }
 
 // Close all the boxes used to display and reply to posts
-function closeContentBox() {
+function closeContentBoxes() {
 	d3.select("#messageBox").remove();
 	d3.select("#contentForObj").remove();
 	d3.select("#replyForObj").remove();
@@ -333,7 +328,7 @@ function closeContentBox() {
 }
 
 // Returns a list of all nodes under the root.
-//
+//	Also assigns a size value to nodes as well as depth
 // Also assign each node a reasonable starting x/y position: we can do better than random placement since we're force-layout-ing a hierarchy!
 function flatten(root) {
   var nodes = [], i = 0, depth = 0, level_widths = [1], max_width, max_depth = 1, kx, ky;
@@ -343,7 +338,7 @@ function flatten(root) {
       var w = level_widths[depth + 1] || 0;
       level_widths[depth + 1] = w + node.children.length;
       max_depth = Math.max(max_depth, depth + 1);
-      node.size = node.children.reduce(function(p, v, i) {
+      node.size = node.children.reduce(function(p, v, i) { // Size is an accumulation, of some kind, of the children below it
         return p + recurse(v, node, depth + 1, w + i);
       }, 0);
     }
@@ -396,16 +391,16 @@ function flatten(root) {
 		http://stackoverflow.com/questions/15535714/d3-js-collapsible-force-layout-links-are-not-being-generated/15538261#15538261
 */
 
-function computeLinks(nodes) {
+/*function computeLinks(nodes) {
   return d3.merge(nodes.map(function(parent) {
     return parent.computeChildren().map(function(child) {
       return {source: parent, target: child};
     });
   }));
-}
+}*/
 
 // This function pulled straight from v2.10
-function computeLinks1(nodes) {
+function computeLinks(nodes) {
     return d3.merge(nodes.map(function(parent) {
       return (parent.children || []).map(function(child) {
         return {source: parent, target: child};
