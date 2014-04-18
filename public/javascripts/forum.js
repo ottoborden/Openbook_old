@@ -85,7 +85,7 @@ function drawForum(data) {
 		  .links(links)
 		  .start();
 		
-		// Update the links…
+		// Update the links���
 		link = vis.selectAll("line.link")
 		  .data(links, function(d) { return d.target.id; });
 
@@ -100,7 +100,7 @@ function drawForum(data) {
 		// Exit any old links.
 		link.exit().remove();
 		
-		// Update the nodes…
+		// Update the nodes���
 		node = vis.selectAll("circle.node")
 		  .data(nodes, function(d) { return d.id; });
 		  //.style("fill", color);

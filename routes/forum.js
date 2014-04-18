@@ -248,13 +248,12 @@ exports.handleReply = function(req, res) {
 			*/
 			db.insertRelationship(req._passport.session.user.userNodeId, node._id, 'POSTED', {relationshipId: uid.next()}, function(err, relationship){
 				if(err) {
-					console.log(req._passport.session.user.userNodeId);
 					throw err;
 				}
 				else {
 					console.log("Post successfully related to user " + req._passport.session.user.userNodeId);
 					// Get ID of node with postId == req.body.guid
-					db.cypherQuery("MATCH (n:Post),(m:Post) " + 
+					db.cypherQuery("MATCH (n),(m) " + // Originally MATCH (n:Post),(m:Post) - this is why can't respond to OP; it of type OpeningPost
 									"WHERE n.postId = \'" + req.body.guid + "\' AND " + 
 									"id(m) = " + node._id + 
 									" CREATE (m)-[r:REPLYTO { timePosted: " + moment().unix() + ", relationshipId: \'" + uid.next() + "\'}]->(n)", function(err, posts) {
