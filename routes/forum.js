@@ -227,8 +227,6 @@ exports.getData = function(req, res) {
 }
 
 exports.handleReply = function(req, res) {
-	console.log(req.body);
-	console.log(req._passport.session.user);
 	// First insert the new Post node and link it to the proper user
 	// Then create the REPLYTO relationship on the proper node
 	var uid = new Uid;
@@ -255,7 +253,6 @@ exports.handleReply = function(req, res) {
 				}
 				else {
 					console.log("Post successfully related to user " + req._passport.session.user.userNodeId);
-					console.log(relationship);
 					// Get ID of node with postId == req.body.guid
 					db.cypherQuery("MATCH (n:Post),(m:Post) " + 
 									"WHERE n.postId = \'" + req.body.guid + "\' AND " + 
@@ -270,10 +267,12 @@ exports.handleReply = function(req, res) {
 				}
 			});
 			// Need to return serialized JSON or jQuery thinks an error has occurred
+			// Send the new node back so the forum can be updated without a page load
+			console.log(node);
 			var r = {
 				success: true
 			};
-			res.send(JSON.stringify(r));
+			res.send(JSON.stringify(node));
 		}
 	});
 	

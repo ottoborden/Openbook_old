@@ -1,5 +1,9 @@
 extends layout
 
+block append scripts
+	script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js")
+	script(src="/javascripts/test.js")
+
 block content
 	h1 #{title}
 	

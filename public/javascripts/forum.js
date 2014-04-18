@@ -26,7 +26,7 @@ function drawForum(data) {
 	var force = d3.layout.force()
 		.on("tick", tick)
 		.gravity(0.05)
-		.charge(-300)
+		.charge(-400)
 		//.gravity(0)
 		//.charge(0)
 		/*.charge(function(d) {
@@ -305,11 +305,15 @@ function processReply() {
 			replyTitle: d3.select("#replyTitleText")[0][0].value,
 			replyMessage: d3.select("#replyMessageText")[0][0].value
 		},
-		success: function(data) {
-			console.log(data);
+		success: function(rtn) {
+			console.log(rtn);
 			closeContentBoxes();
-			// Return the JSON serialization of the newly inserted node
+			// Get the returned JSON serialization of the newly inserted node
 			// Then put the node in the correct spot in the array and call update
+			var parent = findPostById(selectedNodeId, data);
+			console.log(parent);
+			parent.children.push(rtn);
+			update();
 			
 		},
 		error: function(err) {
@@ -317,6 +321,17 @@ function processReply() {
 			closeContentBoxes();
 		}
 	});
+}
+
+function findPostById(postId, obj) {
+	if(obj.postId == postId) {
+		return obj;
+	}
+	else if(obj.children.length) {
+		for(var i = 0; i < obj.children.length; i++) {
+			return findPostById(postId, obj.children[i]);
+		}
+	}
 }
 
 // Close all the boxes used to display and reply to posts
