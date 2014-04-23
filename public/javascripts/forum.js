@@ -28,7 +28,7 @@ function drawForum(data) {
 	var force = d3.layout.force()
 		.on("tick", tick)
 		.gravity(0.05)
-		.charge(-200)
+		.charge(-250)
 		//.gravity(0)
 		//.charge(0)
 		/*.charge(function(d) {
