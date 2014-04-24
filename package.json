@@ -1,5 +1,5 @@
 {
-  "name": "application-name",
+  "name": "Openbook",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,5 +9,27 @@
     "express": "3.4.1",
     "jade": "*",
     "moment": "2.5.0"
-  }
+  },
+  "description": "This is my first commit of my undergraduate thesis project for Washington College.",
+  "main": "app.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ottoborden/Openbook.git"
+  },
+  "keywords": [
+    "openbook",
+    "web",
+    "forum",
+    "forum",
+    "user",
+    "interface",
+    "thesis"
+  ],
+  "author": "Otto Borden",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ottoborden/Openbook/issues"
+  },
+  "homepage": "https://github.com/ottoborden/Openbook"
 }
