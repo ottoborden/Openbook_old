@@ -7,7 +7,7 @@ var util = require('util');
 var crypto = require('crypto');
 var Uid = require('sequential-guid');
 var neo4j = require('node-neo4j');
-var db = new neo4j(process.env.NEO4J_URL || 'http://localhost:7474');
+var db = new neo4j(process.env['GRAPHENEDB_URL'] || 'http://localhost:7474');
 //var db = new neo4j("http://thesisdb:Pvewfh3457PS02N6ocac@thesisdb.sb01.stations.graphenedb.com:24789");
 
 var express = require('express');
@@ -23,7 +23,6 @@ app.use(express.bodyParser());
 */
 
 exports.process = function(req, res) {
-	res.send('Process registration here...');
 	var key = crypto.randomBytes(256);
     var passHash = crypto.createHmac('sha1', key).update(String(req.body.password)).digest('hex');
     var uid = new Uid;
@@ -34,10 +33,13 @@ exports.process = function(req, res) {
         email: String(req.body.email),
         userId: uid.next()
     }, "User", function(err, node) {
-    		if(err)
+    		if(err) {
 	    		console.log("User Registration Error: " + err);
+	    		res.redirect('/signup');
+	    	}
 	    	else {
 		    	console.log("New User Registered Successfully.");
+		    	res.redirect('/login');
 	    	}
     	})
 };

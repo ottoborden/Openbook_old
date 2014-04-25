@@ -9,7 +9,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 var neo4j = require('node-neo4j');
-var db = new neo4j(process.env.NEO4J_URL || 'http://localhost:7474');
+var db = new neo4j(process.env['GRAPHENEDB_URL'] || 'http://localhost:7474');
 
 exports.login = function(req, res) {
     res.render('login', { loginMessage: 'Login' });

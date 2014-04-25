@@ -1,11 +1,11 @@
-var devurl = "http://localhost:3000/forum/load";
+var devurl = "/forum/load";
 var produrl = "";
 
 $.ajax({
 	url: devurl,
 	data: {},
 	success: function(data) {
-		drawForum(data)
+		drawForum(data);
 	},
 	error: function(err) {
 		console.log(err);
@@ -299,7 +299,7 @@ function drawForum(data) {
 		// Send reply form data to localhost/handleReply
 		// Need to know the guid of the node being replied to
 		$.ajax({
-			url: 'http://localhost:3000/forum/reply',
+			url: '/forum/reply',
 			dataType: 'json',
 			type: 'POST',
 			data: {

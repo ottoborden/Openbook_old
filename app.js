@@ -19,7 +19,6 @@ var process_signup = require('./routes/process_signup'); // Process registration
 var login = require('./routes/login');
 var forum = require('./routes/forum');
 var post = require('./routes/post');
-var filldb = require('./routes/filldb');
 
 
 var app = express();
@@ -73,13 +72,10 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-// Fill DB with test data
-app.get('/filldb', filldb.fillDb);
-
 // Define routes here to provide functionality of site
 app.all('*', function(req, res, next) {
 	if(req.isAuthenticated())
-		console.log("logged in")
+		console.log("logged in");
 	else
 		console.log("not logged in");
 	next();
@@ -109,7 +105,7 @@ app.post('/post', post.process);
 
 app.get('/about', function(req, res, next) {
 	res.render('about');
-})
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
@@ -122,5 +118,5 @@ http.createServer(app).listen(app.get('port'), function(){
 //   login page.
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login')
+  res.redirect('/login');
 }

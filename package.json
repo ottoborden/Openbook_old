@@ -2,13 +2,17 @@
   "name": "Openbook",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": "0.10.x"
+  },
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
     "express": "3.4.1",
     "jade": "*",
-    "moment": "2.5.0"
+    "moment": "2.5.0",
+    "passport": "0.1.6"
   },
   "description": "This is my first commit of my undergraduate thesis project for Washington College.",
   "main": "app.js",
