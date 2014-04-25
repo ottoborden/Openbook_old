@@ -19,7 +19,7 @@ var process_signup = require('./routes/process_signup'); // Process registration
 var login = require('./routes/login');
 var forum = require('./routes/forum');
 var post = require('./routes/post');
-
+var threads = require('./routes/threads');
 
 var app = express();
 app.use(express.bodyParser());
@@ -102,6 +102,8 @@ app.post('/forum/reply', forum.handleReply);
 
 app.get('/post', post.post);
 app.post('/post', post.process);
+
+app.get('/threads', threads.getThreads);
 
 app.get('/about', function(req, res, next) {
 	res.render('about');
