@@ -24,7 +24,7 @@ var moment = require('moment');
 var db = new neo4j(process.env['GRAPHENEDB_URL'] || 'http://localhost:7474'); // Heroku now offers Neo4j via the graphenedb addon
 
 exports.forum = function(req, res) {
-	res.render('forum', {rootId: req.query.rootId});
+	res.render('forum');
 }
 
 exports.getData = function(req, res) {

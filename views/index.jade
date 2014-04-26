@@ -5,13 +5,14 @@ block append scripts
 	script(src="/javascripts/test.js")
 
 block content
-	h1 #{title}
+	#main
+		h1 #{title}
 	
-	h2 Graphing Conversations
-	h3 A New Take on Web-Based Discussion
-
-	p My proposed Senior Capstone Experience is a redesign of familiar Internet based communication systems such as web forums, bulletin boards and comment sections. Historically these applications are stored as tabular data in a Relational Database and their user interfaces are linear in nature, displaying posts, responses and comments in a list like structure; typically organized by date and time of submission. I propose a new method in which the information comprising online discussions is stored in a graph database, the structure and scope of which is then displayed directly to the user within the rendering window of a web browser.
+		h2 Graphing Conversations
+		h3 A New Take on Web-Based Discussion
 	
-	p The proposed solution would work as follows. Each node within the graph is a user submitted post or comment that contains references to other nodes in the graph that represent the topic or conversation that it is a reply to or comment on. The nodes and their relations are then displayed to the user in a pan-able, zoom-able interface that allows them to quickly and visually spot trending posts and topics. The author believes this is superior to the concept of news feeds in which algorithms track user behavior and guess what they want to see, a process which degrades the openness of the Internet and could lock users into content echo chambers that shelter them from new and or dissenting ideas and opinions.
-	
-	p Implementing my proposal will require that several things. First I will need to learn how to write to, read from, update and delete nodes within a graph database. Second I will have to implement data structures within the graph that allow for the efficient storage, retrieval and visualization of the underlying structure of the database. And lastly I will have to develop a method of displaying the graph to users that allows them to navigate the graph intuitively while also being able to focus on individual posts or threads of conversations.
+		p My proposed Senior Capstone Experience is a redesign of familiar Internet based communication systems such as web forums, bulletin boards and comment sections. Historically these applications are stored as tabular data in a Relational Database and their user interfaces are linear in nature, displaying posts, responses and comments in a list like structure; typically organized by date and time of submission. I propose a new method in which the information comprising online discussions is stored in a graph database, the structure and scope of which is then displayed directly to the user within the rendering window of a web browser.
+		
+		p The proposed solution would work as follows. Each node within the graph is a user submitted post or comment that contains references to other nodes in the graph that represent the topic or conversation that it is a reply to or comment on. The nodes and their relations are then displayed to the user in a pan-able, zoom-able interface that allows them to quickly and visually spot trending posts and topics. The author believes this is superior to the concept of news feeds in which algorithms track user behavior and guess what they want to see, a process which degrades the openness of the Internet and could lock users into content echo chambers that shelter them from new and or dissenting ideas and opinions.
+		
+		p Implementing my proposal will require that several things. First I will need to learn how to write to, read from, update and delete nodes within a graph database. Second I will have to implement data structures within the graph that allow for the efficient storage, retrieval and visualization of the underlying structure of the database. And lastly I will have to develop a method of displaying the graph to users that allows them to navigate the graph intuitively while also being able to focus on individual posts or threads of conversations.

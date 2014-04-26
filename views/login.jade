@@ -1,16 +1,17 @@
 extends layout
 
 block content
-    h1= loginMessage
-    p Use the Form Below to Login
-
-    div
-        form(action='/login', method='post')
-            div
-                label(for='username') Username: 
-                input(id='username', name='username', type='text', value='', placeholder='username')
-            div
-                label(for='password') Password: 
-                input(id='password', name='password', type='password', value='', placeholder='password')
-            div
-                input(id='submit', type='submit', value='Log In')
+	#main
+		h1= loginMessage
+		p Use the Form Below to Login
+		
+		div
+			form(action='/login', method='post')
+				div
+					label(for='username') Username: 
+					input(id='username', name='username', type='text', value='', placeholder='username')
+				div
+					label(for='password') Password: 
+					input(id='password', name='password', type='password', value='', placeholder='password')
+				div
+					input(id='submit', type='submit', value='Log In')

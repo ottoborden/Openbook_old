@@ -1,21 +1,28 @@
 doctype html
-html
+html(lang='en')
 	head
-		title= "Openbook"
+		meta(charset='utf-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=no')
+		title="Openbook"
 		link(rel='stylesheet', href='/stylesheets/style.css')
 		block scripts
 
 	body
-		block content
-	
-		#headerbar
-			ul#navlinks
-				li: a(href="/") Home
-				li: a(href="/login") Login
-				li: a(href="/signup") Signup
-				li: a(href="/threads") Forum
-				li: a(href="/post") Post
-				li: a(href="/about") About
-				
-		#footer
-			p(style="text-align: center") Copyright 2014 Openbook
+		#wrapper
+			block content
+		
+		
+			#headerbar
+				ul#topicslist
+					li: a(href="/threads?topic=Random") Random
+		
+			#sidebar
+				ul#navlinks
+					li: a(href="/") Home
+					li: a(href="/login") Login
+					li: a(href="/signup") Signup
+					li: a(href="/post") Post
+					li: a(href="/about") About
+					
+			#footer
+				p(style="text-align: center") Copyright 2014 Openbook

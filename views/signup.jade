@@ -1,19 +1,19 @@
 extends layout
 
 block content
-    h1= message
-    p This is the #{message}
+	h1= message
+	p This is the #{message}
 
-    div
-        form(action='/process_signup', method='post')
-            div
-                label(for='username') Username: 
-                input(id='username', name='username', type='text', value='', placeholder='desired username')
-            div
-                label(for='email') Email: 
-                input(id='email', name='email', type='text', value='', placeholder='name@example.com')
-            div
-                label(for='password') Password: 
-                input(id='password', name='password', type='password', placeholder='desired password')
-            div
-                input(type='submit', value='Sign Up', data-transition='fade')
+	div
+		form(action='/process_signup', method='post')
+			div
+				label(for='username') Username: 
+				input(id='username', name='username', type='text', value='', placeholder='desired username')
+			div
+				label(for='email') Email: 
+				input(id='email', name='email', type='text', value='', placeholder='name@example.com')
+			div
+				label(for='password') Password: 
+				input(id='password', name='password', type='password', placeholder='desired password')
+			div
+				input(type='submit', value='Sign Up', data-transition='fade')

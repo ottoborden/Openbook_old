@@ -1,15 +1,46 @@
 body {
-	background-color: #ffb873;
+	background-color: #FFFFFF;
 	padding: 0px;
 	margin: 0px;
 	font: 1em "Helvetica", Arial, sans-serif;
 }
 
+#wrapper {
+	margin-right: auto;
+	margin-left: auto;
+	width: 96%;
+}
+
 #headerbar {
-	position: fixed;
+	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
+	background-color: #169b3e;
+}
+
+#topicslist {
+	position: absolute;
+	display: inline-block;
+	top: 0;
+	left: 75px;
+	width: 100%;
+	background-color: #1987fa;
+	margin: 0;
+	padding: 0;
+}
+
+#topicslist li {
+	list-style-type: none;
+	padding-right: 20px;
+}
+
+#sidebar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 75px;
+	height: 100%;
 	background-color: #169b3e;
 }
 
@@ -19,9 +50,21 @@ body {
 }
 
 #navlinks li {
-	display: inline;
+	/*display: inline;*/
 	list-style-type: none;
 	padding-right: 20px;
+}
+
+#main {
+	position: absolute;
+	left: 75px;
+	background-color: #f9ec2a;
+}
+
+#footer {
+	position: absolute;
+	width: 100%;
+	left: 75px;
 }
 
 circle.node {
