@@ -24,7 +24,7 @@ var moment = require('moment');
 var db = new neo4j(process.env['GRAPHENEDB_URL'] || 'http://localhost:7474'); // Heroku now offers Neo4j via the graphenedb addon
 
 exports.forum = function(req, res) {
-	res.render('forum');
+	res.render('forum', {rootId: req.query.rootId});
 }
 
 exports.getData = function(req, res) {
@@ -98,7 +98,7 @@ exports.getData = function(req, res) {
 	// When this is called from threads.js the id of the start node will be known
 	var nodeNum = 298;
 	var rootNodeId = -1;
-	db.cypherQuery("START a=node(" + nodeNum + ") WITH a MATCH p = a<-[:REPLYTO*]-x RETURN EXTRACT (x IN nodes(p) | {id: id(x), message: x.message, title: x.title, postId: x.postId}) AS messages", function(err, posts) {
+	db.cypherQuery("START a=node(" + req.query.rootId + ") WITH a MATCH p = a<-[:REPLYTO*]-x RETURN EXTRACT (x IN nodes(p) | {id: id(x), message: x.message, title: x.title, postId: x.postId}) AS messages", function(err, posts) {
 		if(err)
 			throw err;
 		else {

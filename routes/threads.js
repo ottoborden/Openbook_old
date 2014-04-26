@@ -10,7 +10,7 @@ exports.threads = function(req, res) {
 
 exports.getThreads = function(req, res) {
 	// Get all threads related to the topic in req.query.topic
-	db.cypherQuery("MATCH (n:Topic),(m:OpeningPost) WHERE n.topicName = '" + req.query.topic + "' WITH n,m MATCH (n)<-[:BELONGSTO]-(m) RETURN {id: id(m), title: m.title, postId: m.postId, numChildren: m.numChildren}", function(err, threads) {
+	db.cypherQuery("MATCH (n:Topic),(m:OpeningPost) WHERE n.topicName = '" + req.query.topic + "' WITH n,m MATCH (n)<-[:BELONGSTO]-(m) RETURN {id: id(m), title: m.title, message: m.message, postId: m.postId, numChildren: m.numChildren}", function(err, threads) {
 		if(err)
 			throw err;
 		else {
@@ -44,11 +44,11 @@ exports.getThreads = function(req, res) {
 				for(var i = 0; i < threads.data.length; i++) {
 					for(var j = 0; j < numDepths; j++) {
 						if(i < numc) {
-							c.push({id: threads.data[i].id, title: threads.data[i].title, postId: threads.data[i].postId, children: []});
+							c.push({id: threads.data[i].id, title: threads.data[i].title, message: threads.data[i].message, postId: threads.data[i].postId, numReplies: threads.data[i].numChildren, children: []});
 							i++;
 						}
 						else {
-							c[t].children.push({id: threads.data[i].id, title: threads.data[i].title, postId: threads.data[i].postId, children: []});
+							c[t].children.push({id: threads.data[i].id, title: threads.data[i].title, message: threads.data[i].message, postId: threads.data[i].postId, numReplies: threads.data[i].numChildren, children: []});
 							i++;
 						}
 					}

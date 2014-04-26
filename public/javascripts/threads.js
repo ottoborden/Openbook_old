@@ -1,6 +1,9 @@
+var devurl = 'http://localhost:3000';
+var produrl = '';
+
 
 $.ajax({
-	url: "/threads/load",
+	url: "/threads/load?topic=Random",
 	data: {},
 	success: function(data) {
 		drawForum(data);
@@ -269,8 +272,10 @@ function drawForum(data) {
 								.style('width', '270px')
 								.style('height', '20px')
 								.style('background-color', 'yellow')
-								.html('Reply<br/><br/>')
-								.on('click', showReplyForm);
+								.html('View Thread<br/><br/>')
+								.on('click', function() {
+									window.location = '/forum?rootId=' + d.id;
+								});
 		
 		// Consider creating an addSVGElementFromJSON function
 		
