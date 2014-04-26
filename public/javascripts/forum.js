@@ -14,8 +14,6 @@ $.ajax({
 });
 
 function drawForum(data) {
-	var newCopy = jQuery.extend(true, {}, data);
-	console.log(newCopy);
 	console.log(data);
 
 	var width = 1600,

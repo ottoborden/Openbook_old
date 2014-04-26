@@ -103,7 +103,9 @@ app.post('/forum/reply', forum.handleReply);
 app.get('/post', post.post);
 app.post('/post', post.process);
 
-app.get('/threads', threads.getThreads);
+app.get('/threads', threads.threads);
+app.get('/threads/load', threads.getThreads);
+
 
 app.get('/about', function(req, res, next) {
 	res.render('about');

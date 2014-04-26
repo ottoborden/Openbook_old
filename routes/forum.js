@@ -95,68 +95,78 @@ exports.getData = function(req, res) {
 				
 	*/
 	// This will return an object with an array called nodes. Use this to build a map of the structure to return, then fill it it with post data. Then send a query getting info each node involved
-	db.cypherQuery("START a=node(4) MATCH p = a<-[:REPLYTO*]-x RETURN EXTRACT (x IN nodes(p) | {id: id(x), message: x.message, title: x.title, postId: x.postId}) AS messages", function(err, posts) {
+	// When this is called from threads.js the id of the start node will be known
+	var nodeNum = 298;
+	var rootNodeId = -1;
+	db.cypherQuery("START a=node(" + nodeNum + ") WITH a MATCH p = a<-[:REPLYTO*]-x RETURN EXTRACT (x IN nodes(p) | {id: id(x), message: x.message, title: x.title, postId: x.postId}) AS messages", function(err, posts) {
 		if(err)
 			throw err;
 		else {
 			var rtn = {}; // Object to return
 			var t = []; // Hold extracted node ids
+			var numChildren = 0; // Count all nodes that are a descendant of the root node
 			for(var i = 0; i < posts.data.length; i++) {
 				for(var j = 0; j < posts.data[i].length; j++) {
 					t.push(posts.data[i][j]);
 				}
 			}
-			//console.log(t);
-			
-			// Build rtn object
-			rtn = {id: t[0].id, title: t[0].title, message: t[0].message, postId: t[0].postId, children: []};
-			var curr = rtn;
-			for(var i = 1; i < t.length; i++) {
-				if(t[i].id == t[0].id) {
-					curr = rtn;
-					continue;
-				}
-				if(curr.children.length > 0) {
-					var found = false;
-					for(var j = 0; j < curr.children.length; j++) {
-						if(curr.children[j].id == t[i].id) {
-							found = true;
-							curr = curr.children[j];
-							break;
-						}
+			if(posts.data.length == 0) { // Deal with a post with no children
+				db.cypherQuery("START a=node(" + nodeNum + ") RETURN a", function(err, post) {
+					if(err)
+						throw err;
+					else {
+						console.log(post.data[0]);
+						rtn = {id: post.data[0].id, title: post.data[0].title, message: post.data[0].message, postId: post.data[0].postId, children: []};
+						rootNodeId = post.data[0].postId;
+						
+						res.send(JSON.stringify(rtn));
 					}
-					if(!found) {
-						curr.children.push({id: t[i].id, title: t[i].title, message: t[i].message, postId: t[i].postId, children: []});
-					}
-				}
-				else {
-					curr.children.push({id: t[i].id, title: t[i].title, message: t[i].message, postId: t[i].postId, children: []});
-				}
+				});
 			}
-			/*var curr = rtn;
-			for(var i = 1; i < t.length; i++) {
-				if(t[i] == t[0]) {
-					curr = rtn;
-					continue;
-				}
-				if(curr.children.length > 0) {
-					var found = false;
-					for(var j = 0; j < curr.children.length; j++) {
-						if(curr.children[j].id == t[i]) {
-							found = true;
-							curr = curr.children[j];
+			else {
+				// Build rtn object
+				rtn = {id: t[0].id, title: t[0].title, message: t[0].message, postId: t[0].postId, children: []};
+				rootNodeId = t[0].postId;
+				var curr = rtn;
+				for(var i = 1; i < t.length; i++) {
+					if(t[i].id == t[0].id) {
+						curr = rtn;
+						continue;
+					}
+					if(curr.children.length > 0) {
+						var found = false;
+						for(var j = 0; j < curr.children.length; j++) {
+							if(curr.children[j].id == t[i].id) {
+								found = true;
+								curr = curr.children[j];
+								break;
+							}
+						}
+						if(!found) {
+							curr.children.push({id: t[i].id, title: t[i].title, message: t[i].message, postId: t[i].postId, children: []});
+							numChildren++;
 						}
 					}
-					if(!found) {
-						curr.children.push({id: t[i], children: []});
+					else {
+						curr.children.push({id: t[i].id, title: t[i].title, message: t[i].message, postId: t[i].postId, children: []});
+						numChildren++;
 					}
 				}
+				
+				res.send(JSON.stringify(rtn));
+			}
+			
+			// Update root node with the number of its children
+			db.cypherQuery("MATCH (n:OpeningPost) WHERE n.postId = '" + rootNodeId + "' SET n.numChildren = " + numChildren, function(err, result) {
+				if(err)
+					throw err;
 				else {
-					curr.children.push({id: t[i], children: []});
+					console.log("numChildren updated successfully.");
 				}
-			}*/
+			});
+			
 			//console.log(JSON.stringify(rtn));
-			res.send(JSON.stringify(rtn));
+			//res.send(JSON.stringify(rtn));
 		}
 	});
 	

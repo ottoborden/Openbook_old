@@ -21,7 +21,8 @@ exports.process = function(req, res) {
 		title: req.body.title,
 		message: req.body.message,
 		timePosted: moment().unix(),
-		postId: uid.next()
+		postId: uid.next(),
+		numChildren: 0
 	};
 	db.insertNode(t, "OpeningPost", function(err, node) {
 		if(err) {
