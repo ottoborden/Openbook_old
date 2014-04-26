@@ -1,8 +1,9 @@
+html,
 body {
 	background-color: #FFFFFF;
 	padding: 0px;
 	margin: 0px;
-	font: 1em "Helvetica", Arial, sans-serif;
+	font: 1em Calibri, Arial, sans-serif;
 }
 
 #wrapper {
@@ -17,6 +18,10 @@ body {
 	left: 0;
 	width: 100%;
 	background-color: #169b3e;
+	padding: .3em;
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box;
 }
 
 #topicslist {
@@ -42,6 +47,10 @@ body {
 	width: 75px;
 	height: 100%;
 	background-color: #169b3e;
+	padding: .3em;
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box;
 }
 
 #navlinks {
@@ -57,14 +66,14 @@ body {
 
 #main {
 	position: absolute;
+	width: 100%;
+	height: 100%;
 	left: 75px;
 	background-color: #f9ec2a;
-}
-
-#footer {
-	position: absolute;
-	width: 100%;
-	left: 75px;
+	padding: .3em;
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box;
 }
 
 circle.node {

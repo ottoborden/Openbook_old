@@ -237,6 +237,12 @@ exports.getData = function(req, res) {
 }
 
 exports.handleReply = function(req, res) {
+	if(req.isAuthenticated() == false) {
+		console.log(req.session);
+		res.send(JSON.stringify({error: 'Not logged in'}));
+		return;
+	}
+	
 	// First insert the new Post node and link it to the proper user
 	// Then create the REPLYTO relationship on the proper node
 	var uid = new Uid;

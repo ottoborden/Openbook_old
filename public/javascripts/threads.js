@@ -252,7 +252,7 @@ function drawForum(data) {
 		                        .style("overflow-x", "auto")
 		                        .style("overflow-y", "auto")
 		                        //.text(d.message)
-								.html('<b>' + d.title + '</b><br/><br/>' + d.message);
+								.html('<b>' + d.title + '</b><br/><br/>' + d.message + '<br/><br/>Replies: ' + d.numReplies);
 					
 	    var closeContentBox = vis.append('svg:foreignObject')
 		    					.attr('id', 'closeContentBox')

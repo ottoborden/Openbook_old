@@ -25,7 +25,7 @@ function drawForum(data) {
 	console.log(data);
 
 	var width = 1600,
-	height = 600,
+	height = 874,
 	node,
 	link,
 	root,
@@ -316,18 +316,56 @@ function drawForum(data) {
 			success: function(rtn) {
 				console.log(rtn);
 				closeContentBoxes();
-				// Get the returned JSON serialization of the newly inserted node
-				// Then put the node in the correct spot in the array and call update
-				rtn.px = 0;
-				rtn.py = 0;
-				rtn.x = 0;
-				rtn.y = 0;
-				rtn.size = 0;
-				rtn.children = [];
-				selectedNode.children.push(rtn);
-				console.log(selectedNode);
-				update();
-				
+				if(rtn.error) {
+					console.log("show error box");
+							var box = vis.append('svg:rect').transition().duration(500)
+							.attr('id', 'messageBox')
+	                        .attr('width', 290)
+	                        .attr('height', 75)
+	                        .attr('x', selectedNode.x)
+	                        .attr('y', selectedNode.y)
+	                        .style('fill', 'red')
+	                        .attr('stroke', 'black');
+	                        
+	    var contentForObj = vis.append('svg:foreignObject')
+	    					.attr('id', 'contentForObj')
+	                        .attr('x', selectedNode.x)
+	                        .attr('y', selectedNode.y + 20)
+	                        .attr('width', 270)
+	                        .attr('height', 65)
+	                        .append('xhtml:div')
+	                        	.attr('id', 'contentBox')
+		                        .style('width', "270px") // Need to use .style and send width & height as string concated with px
+								.style('height', "65px")
+								.html('You must be logged in to reply.');
+					
+	    var closeContentBox = vis.append('svg:foreignObject')
+		    					.attr('id', 'closeContentBox')
+		                        .attr('x', selectedNode.x)
+		                        .attr('y', selectedNode.y)
+		                        .attr('width', 270)
+		                        .attr('height', 20)
+								.append('xhtml:div')
+									.attr('id', 'replyLink')
+									.style('width', '16px')
+									.style('height', '16px')
+									.style('text-align', 'center')
+									.html('X<br/>')
+									.on('click', closeContentBoxes);
+				}
+				else {
+					// Get the returned JSON serialization of the newly inserted node
+					// Then put the node in the correct spot in the array and call update
+					rtn.px = 0;
+					rtn.py = 0;
+					rtn.x = 0;
+					rtn.y = 0;
+					rtn.size = 0;
+					rtn.children = [];
+					selectedNode.children.push(rtn);
+					console.log(selectedNode);
+					update();
+				}
 			},
 			error: function(err) {
 				console.log(err);
