@@ -283,7 +283,7 @@ function drawForum(data) {
 								.on('click', showReplyForm);
 		
 		// Consider creating an addSVGElementFromJSON function
-		
+
 		update();
 	}
 
@@ -363,6 +363,7 @@ function drawForum(data) {
 					rtn.size = 0;
 					rtn.children = [];
 					selectedNode.children.push(rtn);
+					selectedNode.size = 4.5;
 					console.log(selectedNode);
 					update();
 				}

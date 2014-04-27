@@ -39,10 +39,10 @@ exports.getThreads = function(req, res) {
 			rtn = {id: "topic", title: "This is a topic", message: "Topic message", postId: "topic postId", children: []};
 			if(threads.data.length > 1) {
 				var curr = 0,
-					t = -1;
+					t = 0;
 				var c = [];
 				for(var i = 0; i < threads.data.length; i++) {
-					for(var j = 0; j < numDepths; j++) {
+					for(var j = 0; j < numDepths && i < threads.data.length; j++) {
 						if(i < numc) {
 							c.push({id: threads.data[i].id, title: threads.data[i].title, message: threads.data[i].message, postId: threads.data[i].postId, numReplies: threads.data[i].numChildren, children: []});
 							i++;

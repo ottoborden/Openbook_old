@@ -111,7 +111,7 @@ exports.getData = function(req, res) {
 				}
 			}
 			if(posts.data.length == 0) { // Deal with a post with no children
-				db.cypherQuery("START a=node(" + nodeNum + ") RETURN a", function(err, post) {
+				db.cypherQuery("START a=node(" + req.query.rootId + ") RETURN a", function(err, post) {
 					if(err)
 						throw err;
 					else {

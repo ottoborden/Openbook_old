@@ -16,6 +16,7 @@ exports.post = function(req, res) {
 		Node-Neo4j contains built in transaction support
 */
 exports.process = function(req, res) {
+	var nodeId = 0;
 	var uid = new Uid;
 	var t = {
 		title: req.body.title,
@@ -26,7 +27,7 @@ exports.process = function(req, res) {
 	};
 	db.insertNode(t, "OpeningPost", function(err, node) {
 		if(err) {
-			console.log(err);
+			throw err;
 			res.end("Error storing post, application must halt.");
 		}
 		else {
@@ -47,6 +48,7 @@ exports.process = function(req, res) {
 							throw err;
 						else {
 							console.log("Successfully related post " + node._id + " to topic 320.");
+							res.redirect('/forum?rootId=' + node._id);
 						}
 					});
 				}
@@ -55,5 +57,4 @@ exports.process = function(req, res) {
 	});
 	
 	//res.send(req.body);
-	res.redirect('/forum');
 }
