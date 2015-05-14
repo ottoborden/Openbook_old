@@ -7,9 +7,10 @@ var util = require('util');
 var crypto = require('crypto');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var config = require('config');
 
 var neo4j = require('node-neo4j');
-var db = new neo4j(process.env['GRAPHENEDB_URL'] || 'http://localhost:7474');
+var db = new neo4j('http://' + config.get('dbConfig.dbName') + ':' + config.get('dbConfig.dbPassword') + '@' + config.get('dbConfig.host'));
 
 exports.login = function(req, res) {
     res.render('login', { loginMessage: 'Login' });
@@ -18,9 +19,9 @@ exports.login = function(req, res) {
 passport.use(new LocalStrategy(
     function(un, pw, done) {
     	db.readNodesWithLabelsAndProperties("User", {username: un}, function(err, results) {
-    		if(err)
-    			console.log("Error: " + err);
-    		else {
+    		if(err) {
+                throw err;
+            } else {
 				if(results.length > 1) {
 					console.log("Multiple occurances of supplied username.");
 					return done(null, false, { message: "Multiple occurances of supplied username. Please try again." });
